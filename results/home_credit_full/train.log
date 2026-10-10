@@ -1,0 +1,369 @@
+15:32:24 | INFO | Запуск home_credit_unified, результаты: runs/home_credit_unified_20261010_153224
+15:32:24 | INFO | Гиперпараметры:
+{
+ "experiment": {
+  "name": "home_credit_unified",
+  "seed": 42,
+  "output_dir": "runs"
+ },
+ "data": {
+  "kind": "home_credit",
+  "synthetic": {
+   "n_clients": 50000,
+   "n_months": 24,
+   "latent_dim": 10,
+   "default_rate": 0.07,
+   "cure_prob": 0.35,
+   "interaction_strength": 0.8,
+   "risk_scale": 1.8,
+   "drift": 0.3
+  },
+  "home_credit": {
+   "path": "data/home-credit-default-risk",
+   "nrows": null,
+   "encoder_hidden": 64,
+   "encoder_epochs": 6,
+   "encoder_batch_size": 512,
+   "encoder_lr": 0.001
+  },
+  "alfa_bki": {
+   "path": "data/data_for_competition",
+   "n_clients": 500000,
+   "max_len": 32,
+   "encoder_hidden": 64,
+   "encoder_epochs": 4,
+   "encoder_batch_size": 1024,
+   "encoder_lr": 0.002
+  }
+ },
+ "target": {
+  "horizon_months": 12,
+  "dpd_threshold": 90,
+  "short_dpd_threshold": 30,
+  "train_on": "main"
+ },
+ "split": {
+  "scheme": "random",
+  "domain_fit_periods": [
+   0,
+   5
+  ],
+  "train_periods": [
+   6,
+   15
+  ],
+  "val_periods": [
+   16,
+   19
+  ],
+  "test_periods": [
+   20,
+   23
+  ],
+  "fractions": {
+   "domain_fit": 0.3,
+   "train": 0.4,
+   "val": 0.15,
+   "test": 0.15
+  }
+ },
+ "sources": [
+  {
+   "name": "card",
+   "dim": 32,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {
+    "table": "credit_card_balance",
+    "max_len": 24
+   }
+  },
+  {
+   "name": "account",
+   "dim": 64,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {
+    "table": "installments_payments",
+    "max_len": 48
+   }
+  },
+  {
+   "name": "bki",
+   "dim": 256,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     128,
+     64
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {
+    "table": "bureau",
+    "max_len": 32
+   }
+  },
+  {
+   "name": "prev_app",
+   "dim": 64,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {
+    "table": "previous_application",
+    "max_len": 16
+   }
+  },
+  {
+   "name": "pos",
+   "dim": 32,
+   "type": "embedding",
+   "enabled": false,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {
+    "table": "POS_CASH_balance",
+    "max_len": 24
+   }
+  },
+  {
+   "name": "graph",
+   "dim": 768,
+   "type": "embedding",
+   "enabled": false,
+   "tower": {
+    "hidden": [
+     256,
+     64
+    ],
+    "dropout": 0.3
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {}
+  },
+  {
+   "name": "tabular",
+   "dim": 48,
+   "type": "tabular",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [
+     "AMT_",
+     "CNT_CHILDREN",
+     "OBS_",
+     "DEF_"
+    ],
+    "min_category_freq": 30,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {}
+  }
+ ],
+ "model": {
+  "head_hidden": [
+   128,
+   64
+  ],
+  "head_dropout": 0.3,
+  "use_presence_flags": true,
+  "missing_embedding": "learned_mean",
+  "source_dropout": 0.1
+ },
+ "train": {
+  "batch_size": 1024,
+  "epochs": 30,
+  "lr": 0.001,
+  "weight_decay": 1e-05,
+  "pos_weight": null,
+  "patience": 5,
+  "scheduler_patience": 2,
+  "calibration": "platt",
+  "device": "auto",
+  "num_threads": null
+ },
+ "baselines": {
+  "boosting": true,
+  "single_source": {}
+ }
+}
+15:32:25 | INFO | Home Credit: 307511 заявок, уровень TARGET=1: 8.07%
+15:32:25 | INFO | Источник card: таблица credit_card_balance
+15:32:30 | INFO |   [card] доменная модель, эпоха 1: holdout Gini 23.05%
+15:32:31 | INFO |   [card] доменная модель, эпоха 2: holdout Gini 28.01%
+15:32:32 | INFO |   [card] доменная модель, эпоха 3: holdout Gini 30.04%
+15:32:32 | INFO |   [card] доменная модель, эпоха 4: holdout Gini 31.49%
+15:32:33 | INFO |   [card] доменная модель, эпоха 5: holdout Gini 34.06%
+15:32:34 | INFO |   [card] доменная модель, эпоха 6: holdout Gini 36.95%
+15:32:34 | INFO |   card: покрытие 28.3% клиентов, признаков 12
+15:32:34 | INFO | Источник account: таблица installments_payments
+15:32:51 | INFO |   [account] доменная модель, эпоха 1: holdout Gini 29.10%
+15:32:58 | INFO |   [account] доменная модель, эпоха 2: holdout Gini 31.57%
+15:33:04 | INFO |   [account] доменная модель, эпоха 3: holdout Gini 32.18%
+15:33:11 | INFO |   [account] доменная модель, эпоха 4: holdout Gini 32.29%
+15:33:17 | INFO |   [account] доменная модель, эпоха 5: holdout Gini 33.06%
+15:33:23 | INFO |   [account] доменная модель, эпоха 6: holdout Gini 33.30%
+15:33:27 | INFO |   account: покрытие 94.8% клиентов, признаков 11
+15:33:27 | INFO | Источник bki: таблица bureau
+15:33:38 | INFO |   [bki] доменная модель, эпоха 1: holdout Gini 30.46%
+15:33:39 | INFO |   [bki] доменная модель, эпоха 2: holdout Gini 30.88%
+15:33:41 | INFO |   [bki] доменная модель, эпоха 3: holdout Gini 31.72%
+15:33:42 | INFO |   [bki] доменная модель, эпоха 4: holdout Gini 31.29%
+15:33:44 | INFO |   [bki] доменная модель, эпоха 5: holdout Gini 32.09%
+15:33:45 | INFO |   [bki] доменная модель, эпоха 6: holdout Gini 32.61%
+15:33:47 | INFO |   bki: покрытие 85.7% клиентов, признаков 29
+15:33:47 | INFO | Источник prev_app: таблица previous_application
+15:33:50 | INFO |   [prev_app] доменная модель, эпоха 1: holdout Gini 28.41%
+15:33:51 | INFO |   [prev_app] доменная модель, эпоха 2: holdout Gini 30.78%
+15:33:53 | INFO |   [prev_app] доменная модель, эпоха 3: holdout Gini 32.44%
+15:33:54 | INFO |   [prev_app] доменная модель, эпоха 4: holdout Gini 33.32%
+15:33:55 | INFO |   [prev_app] доменная модель, эпоха 5: holdout Gini 33.37%
+15:33:56 | INFO |   [prev_app] доменная модель, эпоха 6: holdout Gini 34.02%
+15:33:57 | INFO |   prev_app: покрытие 94.6% клиентов, признаков 27
+15:33:57 | INFO | domain_fit n=  92253  DR(main)=0.0807
+15:33:57 | INFO | train      n= 123004  DR(main)=0.0807
+15:33:57 | INFO | val        n=  46127  DR(main)=0.0807
+15:33:57 | INFO | test       n=  46127  DR(main)=0.0807
+15:33:57 | INFO | Покрытие источников:
+card        0.283
+account     0.948
+bki         0.857
+prev_app    0.946
+tabular     1.000
+15:33:57 | INFO | Обучение: 123004 train / 46127 val, pos_weight=None, params=107095
+15:33:58 | INFO | epoch   1 | train_loss 0.2963 | val_loss 0.2493 | val Gini 51.83% | lr 1.0e-03 | 0.7s
+15:33:59 | INFO | epoch   2 | train_loss 0.2501 | val_loss 0.2437 | val Gini 54.25% | lr 1.0e-03 | 0.7s
+15:33:59 | INFO | epoch   3 | train_loss 0.2464 | val_loss 0.2443 | val Gini 54.93% | lr 1.0e-03 | 0.7s
+15:34:00 | INFO | epoch   4 | train_loss 0.2444 | val_loss 0.2419 | val Gini 55.26% | lr 1.0e-03 | 0.7s
+15:34:01 | INFO | epoch   5 | train_loss 0.2439 | val_loss 0.2415 | val Gini 55.20% | lr 1.0e-03 | 0.7s
+15:34:02 | INFO | epoch   6 | train_loss 0.2420 | val_loss 0.2429 | val Gini 54.82% | lr 1.0e-03 | 0.7s
+15:34:02 | INFO | epoch   7 | train_loss 0.2420 | val_loss 0.2438 | val Gini 54.97% | lr 5.0e-04 | 0.7s
+15:34:03 | INFO | epoch   8 | train_loss 0.2391 | val_loss 0.2422 | val Gini 54.93% | lr 5.0e-04 | 0.7s
+15:34:04 | INFO | epoch   9 | train_loss 0.2379 | val_loss 0.2423 | val Gini 54.59% | lr 5.0e-04 | 0.8s
+15:34:04 | INFO | Early stopping: лучшая эпоха 4 (val Gini 55.26%)
+15:34:04 | INFO | Platt-калибровка на val: a=1.035 b=-0.092
+15:34:04 | INFO | Базлайн: доменные скоры + LR на векторе скоров
+15:34:07 | INFO | Базлайн: LR на конкатенации эмбеддингов
+15:34:11 | INFO | Базлайн: Бустинг на векторе скоров
+15:34:14 | INFO |   деревьев (подобрано по val): 90
+15:34:14 | INFO | Базлайн: Бустинг на эмбеддингах
+15:35:07 | INFO |   деревьев (подобрано по val): 468
+15:35:52 | INFO | Итоговые метрики:
+== VAL · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              55.26  0.7763   41.43  0.2601  0.0669
+LR на векторе скоров                55.03  0.7752   41.71  0.2674  0.0667
+LR на эмбеддингах                   55.96  0.7798   42.07  0.2673  0.0666
+Бустинг на векторе скоров           55.49  0.7775   41.68  0.2693  0.0666
+Бустинг на эмбеддингах              57.56  0.7878   43.02  0.2781  0.0660
+
+== TEST · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              55.16  0.7758   41.71  0.2593  0.0668
+LR на векторе скоров                54.73  0.7736   41.57  0.2633  0.0667
+LR на эмбеддингах                   56.21  0.7810   42.75  0.2722  0.0663
+Бустинг на векторе скоров           54.74  0.7737   41.89  0.2632  0.0667
+Бустинг на эмбеддингах              56.86  0.7843   43.17  0.2773  0.0659
+15:35:52 | INFO | Демо-инференс 100003                 источники=['account', 'bki', 'prev_app', 'tabular'] PD=0.0070
+15:35:52 | INFO | Демо-инференс 100006                 источники=['card', 'account', 'prev_app', 'tabular'] PD=0.0950
+15:35:52 | INFO | Демо-инференс 100018                 источники=['account', 'prev_app', 'tabular'] PD=0.0252
+15:35:52 | INFO | Демо-инференс 100006_only_card       источники=['card'] PD=0.0937
+15:35:52 | INFO | Демо-инференс 100003_only_tabular    источники=['tabular'] PD=0.0321
+15:35:52 | INFO | Готово. Отчёт: runs/home_credit_unified_20261010_153224/REPORT.md

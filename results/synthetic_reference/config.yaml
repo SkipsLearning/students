@@ -1,0 +1,209 @@
+experiment:
+  name: synthetic_unified
+  seed: 42
+  output_dir: runs
+data:
+  kind: synthetic
+  synthetic:
+    n_clients: 50000
+    n_months: 24
+    latent_dim: 10
+    default_rate: 0.07
+    cure_prob: 0.35
+    interaction_strength: 0.8
+    risk_scale: 1.8
+    drift: 0.3
+  home_credit:
+    path: data/home-credit-default-risk
+    nrows: null
+    encoder_hidden: 64
+    encoder_epochs: 6
+    encoder_batch_size: 512
+    encoder_lr: 0.001
+target:
+  horizon_months: 12
+  dpd_threshold: 90
+  short_dpd_threshold: 30
+  train_on: main
+split:
+  scheme: time
+  domain_fit_periods:
+  - 0
+  - 5
+  train_periods:
+  - 6
+  - 15
+  val_periods:
+  - 16
+  - 19
+  test_periods:
+  - 20
+  - 23
+  fractions:
+    domain_fit: 0.3
+    train: 0.4
+    val: 0.15
+    test: 0.15
+sources:
+- name: card
+  dim: 32
+  type: embedding
+  enabled: true
+  tower:
+    hidden:
+    - 64
+    - 32
+    dropout: 0.2
+  tabular:
+    categorical: null
+    numerical: null
+    exclude: []
+    log_patterns: []
+    min_category_freq: 10
+    max_emb_dim: 16
+    scaler: standard
+  synthetic:
+    factors:
+    - 0
+    - 1
+    - 5
+    noise: 0.5
+    availability: 0.65
+    risk_coef: 0.0
+  home_credit: {}
+- name: account
+  dim: 64
+  type: embedding
+  enabled: true
+  tower:
+    hidden:
+    - 64
+    - 32
+    dropout: 0.2
+  tabular:
+    categorical: null
+    numerical: null
+    exclude: []
+    log_patterns: []
+    min_category_freq: 10
+    max_emb_dim: 16
+    scaler: standard
+  synthetic:
+    factors:
+    - 0
+    - 2
+    - 6
+    noise: 0.5
+    availability: 0.75
+    risk_coef: 0.0
+  home_credit: {}
+- name: bki
+  dim: 256
+  type: embedding
+  enabled: true
+  tower:
+    hidden:
+    - 128
+    - 64
+    dropout: 0.2
+  tabular:
+    categorical: null
+    numerical: null
+    exclude: []
+    log_patterns: []
+    min_category_freq: 10
+    max_emb_dim: 16
+    scaler: standard
+  synthetic:
+    factors:
+    - 1
+    - 2
+    - 3
+    - 7
+    noise: 0.4
+    availability: 0.8
+    risk_coef: -0.3
+  home_credit: {}
+- name: graph
+  dim: 768
+  type: embedding
+  enabled: true
+  tower:
+    hidden:
+    - 256
+    - 64
+    dropout: 0.3
+  tabular:
+    categorical: null
+    numerical: null
+    exclude: []
+    log_patterns: []
+    min_category_freq: 10
+    max_emb_dim: 16
+    scaler: standard
+  synthetic:
+    factors:
+    - 3
+    - 4
+    - 8
+    - 9
+    noise: 0.7
+    availability: 0.35
+    risk_coef: 0.0
+  home_credit: {}
+- name: tabular
+  dim: 48
+  type: tabular
+  enabled: true
+  tower:
+    hidden:
+    - 64
+    - 32
+    dropout: 0.2
+  tabular:
+    categorical:
+    - region
+    - occupation
+    - education
+    - channel
+    - product
+    numerical:
+    - income
+    - age
+    - credit_amount
+    - debt_to_income
+    - months_at_job
+    - n_dependents
+    exclude: []
+    log_patterns:
+    - income
+    - amount
+    - months
+    min_category_freq: 20
+    max_emb_dim: 16
+    scaler: standard
+  synthetic:
+    noise: 0.5
+    availability: 0.97
+  home_credit: {}
+model:
+  head_hidden:
+  - 128
+  - 64
+  head_dropout: 0.3
+  use_presence_flags: true
+  missing_embedding: learned_mean
+  source_dropout: 0.1
+train:
+  batch_size: 512
+  epochs: 40
+  lr: 0.001
+  weight_decay: 1.0e-05
+  pos_weight: null
+  patience: 6
+  scheduler_patience: 2
+  calibration: platt
+  device: auto
+  num_threads: null
+baselines:
+  boosting: true

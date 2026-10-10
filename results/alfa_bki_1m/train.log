@@ -1,0 +1,276 @@
+17:01:36 | INFO | Запуск alfa_bki_1m, результаты: runs/alfa_bki_1m_20261010_170136
+17:01:36 | INFO | Гиперпараметры:
+{
+ "experiment": {
+  "name": "alfa_bki_1m",
+  "seed": 42,
+  "output_dir": "runs"
+ },
+ "data": {
+  "kind": "alfa_bki",
+  "synthetic": {
+   "n_clients": 50000,
+   "n_months": 24,
+   "latent_dim": 10,
+   "default_rate": 0.07,
+   "cure_prob": 0.35,
+   "interaction_strength": 0.8,
+   "risk_scale": 1.8,
+   "drift": 0.3
+  },
+  "home_credit": {
+   "path": "data/home-credit-default-risk",
+   "nrows": null,
+   "encoder_hidden": 64,
+   "encoder_epochs": 6,
+   "encoder_batch_size": 512,
+   "encoder_lr": 0.001
+  },
+  "alfa_bki": {
+   "path": "data/data_for_competition",
+   "n_clients": 1000000,
+   "take": "latest",
+   "max_len": 32,
+   "encoder_hidden": 64,
+   "encoder_epochs": 6,
+   "encoder_batch_size": 1024,
+   "encoder_lr": 0.002,
+   "cv_folds": 5,
+   "cv_score_source": "bki_gru_cv"
+  }
+ },
+ "target": {
+  "horizon_months": 12,
+  "dpd_threshold": 90,
+  "short_dpd_threshold": 30,
+  "train_on": "main"
+ },
+ "split": {
+  "scheme": "time",
+  "domain_fit_periods": [
+   0,
+   6
+  ],
+  "train_periods": [
+   7,
+   16
+  ],
+  "val_periods": [
+   17,
+   19
+  ],
+  "test_periods": [
+   20,
+   23
+  ],
+  "fractions": {
+   "domain_fit": 0.3,
+   "train": 0.4,
+   "val": 0.15,
+   "test": 0.15
+  }
+ },
+ "sources": [
+  {
+   "name": "bki_seq",
+   "dim": 64,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {}
+  },
+  {
+   "name": "bki_gru_cv",
+   "dim": 1,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     8,
+     4
+    ],
+    "dropout": 0.0
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {}
+  },
+  {
+   "name": "bki_agg",
+   "dim": 48,
+   "type": "tabular",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": [],
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {},
+   "home_credit": {}
+  }
+ ],
+ "model": {
+  "head_hidden": [
+   128,
+   64
+  ],
+  "head_dropout": 0.3,
+  "use_presence_flags": true,
+  "missing_embedding": "learned_mean",
+  "source_dropout": 0.1
+ },
+ "train": {
+  "batch_size": 2048,
+  "epochs": 30,
+  "lr": 0.001,
+  "weight_decay": 1e-05,
+  "pos_weight": null,
+  "patience": 4,
+  "scheduler_patience": 2,
+  "calibration": "platt",
+  "device": "auto",
+  "num_threads": null
+ },
+ "baselines": {
+  "boosting": true,
+  "single_source": {
+   "bki_agg": "Бустинг на агрегатах (стандартный подход)"
+  },
+  "single_source_data": "domain_fit+train"
+ }
+}
+17:01:36 | INFO |   прочитан train_data_11.pq: всего клиентов 250000
+17:01:36 | INFO |   прочитан train_data_10.pq: всего клиентов 500000
+17:01:37 | INFO |   прочитан train_data_9.pq: всего клиентов 750000
+17:01:37 | INFO |   прочитан train_data_8.pq: всего клиентов 1000000
+17:01:38 | INFO | Альфа-Банк БКИ: 1000000 клиентов (id 2000000–2999999), 9273873 кредитов, доля дефолтов 3.41%
+17:01:40 | INFO | Источник bki_seq: последовательности кредитов → доменная GRU
+17:02:03 | INFO |   [bki_seq] доменная модель, эпоха 1: holdout Gini 44.63%
+17:02:25 | INFO |   [bki_seq] доменная модель, эпоха 2: holdout Gini 49.03%
+17:02:46 | INFO |   [bki_seq] доменная модель, эпоха 3: holdout Gini 50.48%
+17:03:10 | INFO |   [bki_seq] доменная модель, эпоха 4: holdout Gini 51.48%
+17:03:35 | INFO |   [bki_seq] доменная модель, эпоха 5: holdout Gini 52.27%
+17:04:00 | INFO |   [bki_seq] доменная модель, эпоха 6: holdout Gini 52.10%
+17:04:16 | INFO | GRU по фолдам: 5 фолдов на domain_fit + train
+17:05:04 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 1: holdout Gini 44.67%
+17:05:51 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 2: holdout Gini 49.32%
+17:06:38 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 3: holdout Gini 50.54%
+17:07:25 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 4: holdout Gini 51.69%
+17:08:11 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 5: holdout Gini 51.90%
+17:08:57 | INFO |   [GRU фолд 1/5] доменная модель, эпоха 6: holdout Gini 52.22%
+17:09:51 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 1: holdout Gini 49.50%
+17:10:39 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 2: holdout Gini 52.13%
+17:11:26 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 3: holdout Gini 51.81%
+17:12:12 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 4: holdout Gini 52.79%
+17:12:59 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 5: holdout Gini 53.62%
+17:13:46 | INFO |   [GRU фолд 2/5] доменная модель, эпоха 6: holdout Gini 53.29%
+17:14:44 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 1: holdout Gini 45.66%
+17:15:35 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 2: holdout Gini 48.77%
+17:16:21 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 3: holdout Gini 50.13%
+17:17:06 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 4: holdout Gini 50.97%
+17:17:50 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 5: holdout Gini 51.39%
+17:18:33 | INFO |   [GRU фолд 3/5] доменная модель, эпоха 6: holdout Gini 51.36%
+17:19:23 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 1: holdout Gini 45.06%
+17:20:06 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 2: holdout Gini 48.45%
+17:20:50 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 3: holdout Gini 50.70%
+17:21:34 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 4: holdout Gini 51.87%
+17:22:15 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 5: holdout Gini 51.65%
+17:22:57 | INFO |   [GRU фолд 4/5] доменная модель, эпоха 6: holdout Gini 51.47%
+17:23:43 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 1: holdout Gini 48.39%
+17:24:24 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 2: holdout Gini 50.27%
+17:25:06 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 3: holdout Gini 50.84%
+17:25:47 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 4: holdout Gini 51.41%
+17:26:28 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 5: holdout Gini 51.48%
+17:27:09 | INFO |   [GRU фолд 5/5] доменная модель, эпоха 6: holdout Gini 52.14%
+17:27:14 | INFO | Источник bki_agg: агрегаты кредитной истории
+17:27:20 | INFO |   bki_agg: признаков 440
+17:27:20 | INFO | Клиентов с историей: 100.0%
+17:27:20 | INFO | domain_fit n= 291667  DR(main)=0.0370
+17:27:20 | INFO | train      n= 416667  DR(main)=0.0336
+17:27:20 | INFO | val        n= 125000  DR(main)=0.0366
+17:27:20 | INFO | test       n= 166666  DR(main)=0.0286
+17:27:20 | INFO | Покрытие источников:
+bki_seq       1.0
+bki_gru_cv    1.0
+bki_agg       1.0
+17:27:25 | INFO | Обучение: 416667 train / 125000 val, pos_weight=None, params=50326
+17:27:26 | INFO | epoch   1 | train_loss 0.1580 | val_loss 0.1431 | val Gini 48.75% | lr 1.0e-03 | 1.2s
+17:27:27 | INFO | epoch   2 | train_loss 0.1338 | val_loss 0.1427 | val Gini 49.63% | lr 1.0e-03 | 1.1s
+17:27:28 | INFO | epoch   3 | train_loss 0.1329 | val_loss 0.1425 | val Gini 49.91% | lr 1.0e-03 | 1.2s
+17:27:29 | INFO | epoch   4 | train_loss 0.1326 | val_loss 0.1440 | val Gini 49.81% | lr 1.0e-03 | 1.2s
+17:27:31 | INFO | epoch   5 | train_loss 0.1318 | val_loss 0.1426 | val Gini 49.65% | lr 1.0e-03 | 1.1s
+17:27:32 | INFO | epoch   6 | train_loss 0.1309 | val_loss 0.1435 | val Gini 48.88% | lr 5.0e-04 | 1.0s
+17:27:32 | INFO | epoch   7 | train_loss 0.1288 | val_loss 0.1447 | val Gini 47.49% | lr 5.0e-04 | 1.0s
+17:27:32 | INFO | Early stopping: лучшая эпоха 3 (val Gini 49.91%)
+17:27:33 | INFO | Platt-калибровка на val: a=0.954 b=-0.256
+17:27:33 | INFO | Базлайн: доменные скоры + LR на векторе скоров
+17:27:44 | INFO | Базлайн: LR на конкатенации эмбеддингов
+17:27:55 | INFO | Базлайн: Бустинг на векторе скоров
+17:28:04 | INFO |   деревьев (подобрано по val): 17
+17:28:04 | INFO | Базлайн: Бустинг на эмбеддингах
+17:30:01 | INFO |   деревьев (подобрано по val): 393
+17:30:02 | INFO | Базлайн: Бустинг на агрегатах (стандартный подход) (обучение: domain_fit+train, 708334 клиентов)
+17:42:45 | INFO |   деревьев (подобрано по val): 2744
+17:45:23 | INFO | Итоговые метрики:
+== VAL · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              49.91  0.7495   37.38  0.1067  0.0340
+LR на векторе скоров                49.88  0.7494   37.45  0.1045  0.0340
+LR на эмбеддингах                   50.13  0.7506   37.49  0.1053  0.0340
+Бустинг на векторе скоров           49.82  0.7491   37.22  0.1040  0.0343
+Бустинг на эмбеддингах              50.50  0.7525   37.62  0.1096  0.0340
+Бустинг на агрегатах (стандартный подход)    47.34  0.7367   35.29  0.0989  0.0342
+GRU на сырой кредитной истории      48.02  0.7401   35.75  0.0997  0.0343
+GRU по фолдам (ансамбль)            50.96  0.7548   38.47  0.1085  0.0340
+
+== TEST · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              50.64  0.7532   38.05  0.0921  0.0269
+LR на векторе скоров                51.01  0.7550   38.66  0.0906  0.0269
+LR на эмбеддингах                   51.00  0.7550   38.23  0.0905  0.0269
+Бустинг на векторе скоров           50.85  0.7542   38.41  0.0899  0.0270
+Бустинг на эмбеддингах              51.12  0.7556   37.92  0.0925  0.0269
+Бустинг на агрегатах (стандартный подход)    48.10  0.7405   35.73  0.0848  0.0271
+GRU на сырой кредитной истории      49.23  0.7462   37.18  0.0845  0.0271
+GRU по фолдам (ансамбль)            51.73  0.7586   38.92  0.0939  0.0269
+17:45:23 | INFO | Демо-инференс 2833334                источники=['bki_seq', 'bki_gru_cv', 'tabular'] PD=0.0061
+17:45:23 | INFO | Демо-инференс 2833335                источники=['bki_seq', 'bki_gru_cv', 'tabular'] PD=0.0968
+17:45:23 | INFO | Демо-инференс 2833336                источники=['bki_seq', 'bki_gru_cv', 'tabular'] PD=0.0064
+17:45:23 | INFO | Демо-инференс 2833334_only_bki_seq   источники=['bki_seq'] PD=0.0167
+17:45:23 | INFO | Демо-инференс 2833334_only_bki_agg   источники=['tabular'] PD=0.0437
+17:45:23 | INFO | Готово. Отчёт: runs/alfa_bki_1m_20261010_170136/REPORT.md

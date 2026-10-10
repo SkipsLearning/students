@@ -1,0 +1,99 @@
+# Единая модель на реальном публичном датасете Kaggle «Home Credit Default Risk».
+# Данные: https://www.kaggle.com/competitions/home-credit-default-risk/data
+#   kaggle competitions download -c home-credit-default-risk
+#   unzip home-credit-default-risk.zip -d data/home-credit-default-risk
+experiment:
+  name: home_credit_unified
+  seed: 42
+  output_dir: runs
+
+data:
+  kind: home_credit
+  home_credit:
+    path: data/home-credit-default-risk
+    nrows: null              # например 50000 для быстрой отладки
+    encoder_hidden: 64
+    encoder_epochs: 6
+    encoder_batch_size: 512
+    encoder_lr: 0.001
+
+target:                      # в Home Credit таргет задан организаторами (TARGET)
+  train_on: main
+
+split:
+  scheme: random             # дат выдачи в датасете нет -> стратифицированное разбиение
+  fractions: {domain_fit: 0.3, train: 0.4, val: 0.15, test: 0.15}
+
+# Блок home_credit: из какой таблицы строится последовательность и сколько
+# последних событий брать. Доменная GRU-модель обучается на domain_fit,
+# эмбеддинг снимается с её предпоследнего слоя размерности dim.
+sources:
+  - name: card               # карточные «транзакции» (помесячные балансы карт)
+    type: embedding
+    dim: 32
+    tower: {hidden: [64, 32], dropout: 0.2}
+    home_credit: {table: credit_card_balance, max_len: 24}
+
+  - name: account            # платёжная история по кредитам (аналог расчётного счёта)
+    type: embedding
+    dim: 64
+    tower: {hidden: [64, 32], dropout: 0.2}
+    home_credit: {table: installments_payments, max_len: 48}
+
+  - name: bki                # кредитное бюро
+    type: embedding
+    dim: 256
+    tower: {hidden: [128, 64], dropout: 0.2}
+    home_credit: {table: bureau, max_len: 32}
+
+  - name: prev_app           # прошлые заявки — пример «нового» источника
+    type: embedding
+    dim: 64
+    tower: {hidden: [64, 32], dropout: 0.2}
+    home_credit: {table: previous_application, max_len: 16}
+
+  - name: pos                # выключен; включается одной строкой: enabled: true
+    type: embedding
+    dim: 32
+    enabled: false
+    tower: {hidden: [64, 32], dropout: 0.2}
+    home_credit: {table: POS_CASH_balance, max_len: 24}
+
+  - name: graph              # графа связей в Home Credit нет
+    type: embedding
+    dim: 768
+    enabled: false
+    tower: {hidden: [256, 64], dropout: 0.3}
+
+  - name: tabular
+    type: tabular
+    dim: 48
+    tower: {hidden: [64, 32], dropout: 0.2}
+    tabular:
+      categorical: null      # авто: все нечисловые колонки application_train
+      numerical: null        # авто: все числовые
+      log_patterns: [AMT_, CNT_CHILDREN, OBS_, DEF_]
+      min_category_freq: 30
+      max_emb_dim: 16
+      scaler: standard
+
+model:
+  head_hidden: [128, 64]
+  head_dropout: 0.3
+  use_presence_flags: true
+  missing_embedding: learned_mean
+  source_dropout: 0.1
+
+train:
+  batch_size: 1024
+  epochs: 30
+  lr: 0.001
+  weight_decay: 0.00001
+  pos_weight: null
+  patience: 5
+  scheduler_patience: 2
+  calibration: platt      # калибровка PD на val (Джини не меняет, выравнивает средний PD с DR)
+  device: auto
+
+baselines:
+  boosting: true          # сравнение с градиентным бустингом (на скорах и на эмбеддингах)

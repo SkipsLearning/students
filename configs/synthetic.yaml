@@ -1,0 +1,96 @@
+# Единая модель кредитного скоринга — синтетические данные (запускается сразу).
+experiment:
+  name: synthetic_unified
+  seed: 42
+  output_dir: runs
+
+data:
+  kind: synthetic
+  synthetic:
+    n_clients: 50000
+    n_months: 24
+    latent_dim: 10
+    default_rate: 0.07
+    cure_prob: 0.35
+    interaction_strength: 0.8
+    risk_scale: 1.8
+    drift: 0.3
+
+target:
+  horizon_months: 12      # N
+  dpd_threshold: 90       # K — основное определение дефолта
+  short_dpd_threshold: 30 # «короткое» определение для проверки устойчивости
+  train_on: main
+
+split:                    # out-of-time по месяцам выдачи
+  scheme: time
+  domain_fit_periods: [0, 5]   # обучение доменных моделей/скоров базлайна
+  train_periods: [6, 15]
+  val_periods: [16, 19]
+  test_periods: [20, 23]
+
+# Каждый источник = свой tower. Новый источник добавляется сюда же
+# (см. configs/synthetic_new_source.yaml) — ядро модели не меняется.
+# Блок `synthetic` читает только генератор синтетики:
+#   factors — какие скрытые факторы риска «видит» источник,
+#   noise — шум наблюдения, availability — доля клиентов с источником,
+#   risk_coef — зависимость наличия от риска (MNAR; <0: у рисковых чаще нет данных).
+sources:
+  - name: card
+    type: embedding
+    dim: 32
+    tower: {hidden: [64, 32], dropout: 0.2}
+    synthetic: {factors: [0, 1, 5], noise: 0.5, availability: 0.65, risk_coef: 0.0}
+
+  - name: account
+    type: embedding
+    dim: 64
+    tower: {hidden: [64, 32], dropout: 0.2}
+    synthetic: {factors: [0, 2, 6], noise: 0.5, availability: 0.75, risk_coef: 0.0}
+
+  - name: bki
+    type: embedding
+    dim: 256
+    tower: {hidden: [128, 64], dropout: 0.2}
+    synthetic: {factors: [1, 2, 3, 7], noise: 0.4, availability: 0.8, risk_coef: -0.3}
+
+  - name: graph
+    type: embedding
+    dim: 768
+    enabled: true          # опциональный источник: можно выключить
+    tower: {hidden: [256, 64], dropout: 0.3}
+    synthetic: {factors: [3, 4, 8, 9], noise: 0.7, availability: 0.35, risk_coef: 0.0}
+
+  - name: tabular
+    type: tabular
+    dim: 48                # размерность выхода Entity-Embedding-энкодера
+    tower: {hidden: [64, 32], dropout: 0.2}
+    tabular:
+      categorical: [region, occupation, education, channel, product]
+      numerical: [income, age, credit_amount, debt_to_income, months_at_job, n_dependents]
+      log_patterns: [income, amount, months]
+      min_category_freq: 20
+      max_emb_dim: 16
+      scaler: standard
+    synthetic: {noise: 0.5, availability: 0.97}
+
+model:
+  head_hidden: [128, 64]
+  head_dropout: 0.3
+  use_presence_flags: true
+  missing_embedding: learned_mean   # learned_mean | fixed_mean
+  source_dropout: 0.1
+
+train:
+  batch_size: 512
+  epochs: 40
+  lr: 0.001
+  weight_decay: 0.00001
+  pos_weight: null        # null | auto | число (при auto включите calibration: platt)
+  patience: 6
+  scheduler_patience: 2
+  calibration: platt      # калибровка PD на val (Джини не меняет, выравнивает средний PD с DR)
+  device: auto
+
+baselines:
+  boosting: true          # сравнение с градиентным бустингом (на скорах и на эмбеддингах)

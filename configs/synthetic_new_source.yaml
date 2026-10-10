@@ -1,0 +1,15 @@
+# Пример добавления НОВОГО источника без изменения кода модели.
+# Наследуем базовый конфиг и дописываем один элемент в sources.
+# Запуск с переносом весов towers старых источников:
+#   python scripts/run.py --config configs/synthetic_new_source.yaml --warm-start runs/<прошлый_запуск>
+base: synthetic.yaml
+
+experiment:
+  name: synthetic_plus_insurance
+
+sources:
+  - name: insurance          # новый источник: эмбеддинг страховых полисов
+    type: embedding
+    dim: 64
+    tower: {hidden: [64, 32], dropout: 0.2}
+    synthetic: {factors: [5, 7, 8], noise: 0.5, availability: 0.45, risk_coef: 0.0}

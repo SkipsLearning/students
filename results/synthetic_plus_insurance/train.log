@@ -1,0 +1,366 @@
+13:39:23 | INFO | Запуск synthetic_plus_insurance, результаты: runs/synthetic_plus_insurance_20261010_133923
+13:39:23 | INFO | Гиперпараметры:
+{
+ "experiment": {
+  "name": "synthetic_plus_insurance",
+  "seed": 42,
+  "output_dir": "runs"
+ },
+ "data": {
+  "kind": "synthetic",
+  "synthetic": {
+   "n_clients": 50000,
+   "n_months": 24,
+   "latent_dim": 10,
+   "default_rate": 0.07,
+   "cure_prob": 0.35,
+   "interaction_strength": 0.8,
+   "risk_scale": 1.8,
+   "drift": 0.3
+  },
+  "home_credit": {
+   "path": "data/home-credit-default-risk",
+   "nrows": null,
+   "encoder_hidden": 64,
+   "encoder_epochs": 6,
+   "encoder_batch_size": 512,
+   "encoder_lr": 0.001
+  }
+ },
+ "target": {
+  "horizon_months": 12,
+  "dpd_threshold": 90,
+  "short_dpd_threshold": 30,
+  "train_on": "main"
+ },
+ "split": {
+  "scheme": "time",
+  "domain_fit_periods": [
+   0,
+   5
+  ],
+  "train_periods": [
+   6,
+   15
+  ],
+  "val_periods": [
+   16,
+   19
+  ],
+  "test_periods": [
+   20,
+   23
+  ],
+  "fractions": {
+   "domain_fit": 0.3,
+   "train": 0.4,
+   "val": 0.15,
+   "test": 0.15
+  }
+ },
+ "sources": [
+  {
+   "name": "card",
+   "dim": 32,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "factors": [
+     0,
+     1,
+     5
+    ],
+    "noise": 0.5,
+    "availability": 0.65,
+    "risk_coef": 0.0
+   },
+   "home_credit": {}
+  },
+  {
+   "name": "account",
+   "dim": 64,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "factors": [
+     0,
+     2,
+     6
+    ],
+    "noise": 0.5,
+    "availability": 0.75,
+    "risk_coef": 0.0
+   },
+   "home_credit": {}
+  },
+  {
+   "name": "bki",
+   "dim": 256,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     128,
+     64
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "factors": [
+     1,
+     2,
+     3,
+     7
+    ],
+    "noise": 0.4,
+    "availability": 0.8,
+    "risk_coef": -0.3
+   },
+   "home_credit": {}
+  },
+  {
+   "name": "graph",
+   "dim": 768,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     256,
+     64
+    ],
+    "dropout": 0.3
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "factors": [
+     3,
+     4,
+     8,
+     9
+    ],
+    "noise": 0.7,
+    "availability": 0.35,
+    "risk_coef": 0.0
+   },
+   "home_credit": {}
+  },
+  {
+   "name": "tabular",
+   "dim": 48,
+   "type": "tabular",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": [
+     "region",
+     "occupation",
+     "education",
+     "channel",
+     "product"
+    ],
+    "numerical": [
+     "income",
+     "age",
+     "credit_amount",
+     "debt_to_income",
+     "months_at_job",
+     "n_dependents"
+    ],
+    "exclude": [],
+    "log_patterns": [
+     "income",
+     "amount",
+     "months"
+    ],
+    "min_category_freq": 20,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "noise": 0.5,
+    "availability": 0.97
+   },
+   "home_credit": {}
+  },
+  {
+   "name": "insurance",
+   "dim": 64,
+   "type": "embedding",
+   "enabled": true,
+   "tower": {
+    "hidden": [
+     64,
+     32
+    ],
+    "dropout": 0.2
+   },
+   "tabular": {
+    "categorical": null,
+    "numerical": null,
+    "exclude": [],
+    "log_patterns": [],
+    "min_category_freq": 10,
+    "max_emb_dim": 16,
+    "scaler": "standard"
+   },
+   "synthetic": {
+    "factors": [
+     5,
+     7,
+     8
+    ],
+    "noise": 0.5,
+    "availability": 0.45,
+    "risk_coef": 0.0
+   },
+   "home_credit": {}
+  }
+ ],
+ "model": {
+  "head_hidden": [
+   128,
+   64
+  ],
+  "head_dropout": 0.3,
+  "use_presence_flags": true,
+  "missing_embedding": "learned_mean",
+  "source_dropout": 0.1
+ },
+ "train": {
+  "batch_size": 512,
+  "epochs": 40,
+  "lr": 0.001,
+  "weight_decay": 1e-05,
+  "pos_weight": null,
+  "patience": 6,
+  "scheduler_patience": 2,
+  "calibration": "platt",
+  "device": "auto",
+  "num_threads": null
+ },
+ "baselines": {
+  "boosting": true
+ }
+}
+13:39:24 | INFO | domain_fit n=  12581  DR(main)=0.0703
+13:39:24 | INFO | train      n=  20773  DR(main)=0.0712
+13:39:24 | INFO | val        n=   8347  DR(main)=0.0706
+13:39:24 | INFO | test       n=   8299  DR(main)=0.0658
+13:39:24 | INFO | Покрытие источников:
+card         0.653
+account      0.750
+bki          0.795
+graph        0.352
+tabular      0.971
+insurance    0.451
+13:39:24 | INFO | Warm start из runs/synthetic_unified_20261010_133844/: перенесено 37 тензоров
+13:39:24 | INFO | Обучение: 20773 train / 8347 val, pos_weight=None, params=322791
+13:39:24 | INFO | epoch   1 | train_loss 0.2519 | val_loss 0.2135 | val Gini 59.45% | lr 1.0e-03 | 0.2s
+13:39:25 | INFO | epoch   2 | train_loss 0.2038 | val_loss 0.2120 | val Gini 60.71% | lr 1.0e-03 | 0.2s
+13:39:25 | INFO | epoch   3 | train_loss 0.1987 | val_loss 0.2142 | val Gini 60.33% | lr 1.0e-03 | 0.2s
+13:39:25 | INFO | epoch   4 | train_loss 0.1956 | val_loss 0.2150 | val Gini 60.26% | lr 1.0e-03 | 0.2s
+13:39:25 | INFO | epoch   5 | train_loss 0.1971 | val_loss 0.2206 | val Gini 60.22% | lr 5.0e-04 | 0.2s
+13:39:26 | INFO | epoch   6 | train_loss 0.1910 | val_loss 0.2165 | val Gini 60.36% | lr 5.0e-04 | 0.2s
+13:39:26 | INFO | epoch   7 | train_loss 0.1899 | val_loss 0.2161 | val Gini 59.99% | lr 5.0e-04 | 0.2s
+13:39:26 | INFO | epoch   8 | train_loss 0.1863 | val_loss 0.2173 | val Gini 60.24% | lr 2.5e-04 | 0.2s
+13:39:26 | INFO | Early stopping: лучшая эпоха 2 (val Gini 60.71%)
+13:39:26 | INFO | Platt-калибровка на val: a=0.901 b=-0.242
+13:39:26 | INFO | Базлайн: доменные скоры + LR на векторе скоров
+13:39:26 | INFO | Базлайн: LR на конкатенации эмбеддингов
+13:39:27 | INFO | Базлайн: Бустинг на векторе скоров
+13:39:29 | INFO |   деревьев (подобрано по val): 83
+13:39:29 | INFO | Базлайн: Бустинг на эмбеддингах
+13:39:47 | INFO |   деревьев (подобрано по val): 131
+13:39:52 | INFO | Итоговые метрики:
+== VAL · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              60.71  0.8036   45.95  0.2754  0.0580
+LR на векторе скоров                59.12  0.7956   45.70  0.2782  0.0580
+LR на эмбеддингах                   56.66  0.7833   42.91  0.2666  0.0604
+Бустинг на векторе скоров           57.33  0.7866   42.97  0.2594  0.0587
+Бустинг на эмбеддингах              60.47  0.8023   46.98  0.2621  0.0587
+
+== TEST · основной таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              64.18  0.8209   48.91  0.2971  0.0534
+LR на векторе скоров                60.73  0.8036   46.62  0.2916  0.0540
+LR на эмбеддингах                   60.84  0.8042   46.61  0.2898  0.0554
+Бустинг на векторе скоров           60.05  0.8002   46.58  0.2808  0.0545
+Бустинг на эмбеддингах              64.44  0.8222   49.89  0.2845  0.0537
+
+== VAL · короткий таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              61.26  0.8063   45.36  0.5015  0.1253
+LR на векторе скоров                58.14  0.7907   43.61  0.4753  0.1251
+LR на эмбеддингах                   57.81  0.7891   43.23  0.4670  0.1239
+Бустинг на векторе скоров           56.83  0.7841   42.23  0.4608  0.1262
+Бустинг на эмбеддингах              60.48  0.8024   46.40  0.4884  0.1260
+
+== TEST · короткий таргет ==
+Модель                             Джини%     AUC     KS%  PR-AUC   Brier
+Единая NN (эмбеддинги)              63.29  0.8165   48.69  0.4864  0.1098
+LR на векторе скоров                59.58  0.7979   44.62  0.4554  0.1092
+LR на эмбеддингах                   60.05  0.8003   45.77  0.4505  0.1085
+Бустинг на векторе скоров           59.33  0.7967   44.87  0.4505  0.1100
+Бустинг на эмбеддингах              63.20  0.8160   48.61  0.4812  0.1096
+13:39:52 | INFO | Демо-инференс 5                      источники=['card', 'account', 'bki', 'tabular'] PD=0.0397
+13:39:52 | INFO | Демо-инференс 11                     источники=['bki', 'insurance', 'tabular'] PD=0.0523
+13:39:52 | INFO | Демо-инференс 18                     источники=['bki', 'insurance', 'tabular'] PD=0.0269
+13:39:52 | INFO | Демо-инференс 5_only_card            источники=['card'] PD=0.1205
+13:39:52 | INFO | Демо-инференс 5_only_tabular         источники=['tabular'] PD=0.0784
+13:39:52 | INFO | Готово. Отчёт: runs/synthetic_plus_insurance_20261010_133923/REPORT.md
